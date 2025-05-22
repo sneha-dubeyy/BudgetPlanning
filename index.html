@@ -1,0 +1,853 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Personal Finance Codex</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Crimson+Text:ital,wght@0,400;0,600;1,400&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Crimson Text', serif;
+            background: linear-gradient(145deg, #2c2416 0%, #1a1611 50%, #0f0e0c 100%);
+            color: #f4f1e8;
+            min-height: 100vh;
+            padding: 0;
+            line-height: 1.6;
+        }
+        
+        .parchment-bg {
+            background: 
+                radial-gradient(circle at 20% 80%, rgba(139, 117, 87, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(101, 67, 33, 0.1) 0%, transparent 50%),
+                linear-gradient(145deg, #f5e6d3 0%, #e8dcc0 100%);
+            min-height: 100vh;
+            color: #2c1810;
+        }
+        
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            background: linear-gradient(145deg, #f5e6d3 0%, #e8dcc0 100%);
+            box-shadow: 
+                0 0 50px rgba(0,0,0,0.3),
+                inset 0 0 50px rgba(139, 117, 87, 0.2);
+            min-height: 100vh;
+            position: relative;
+        }
+        
+        .container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                repeating-linear-gradient(
+                    0deg,
+                    transparent,
+                    transparent 24px,
+                    rgba(139, 117, 87, 0.1) 25px
+                );
+            pointer-events: none;
+        }
+        
+        .header {
+            background: linear-gradient(145deg, #2c1810 0%, #1a0f0a 100%);
+            color: #f4f1e8;
+            padding: 40px 30px;
+            text-align: center;
+            position: relative;
+            border-bottom: 4px solid #8b7557;
+            box-shadow: inset 0 -10px 20px rgba(0,0,0,0.3);
+        }
+        
+        .header::before {
+            content: '🕯️';
+            position: absolute;
+            top: 20px;
+            left: 30px;
+            font-size: 24px;
+        }
+        
+        .header::after {
+            content: '📚';
+            position: absolute;
+            top: 20px;
+            right: 30px;
+            font-size: 24px;
+        }
+        
+        .header h1 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 2.8rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+            letter-spacing: 2px;
+        }
+        
+        .header .subtitle {
+            font-style: italic;
+            font-size: 1.2rem;
+            opacity: 0.9;
+            margin-bottom: 15px;
+        }
+        
+        .header .quote {
+            font-size: 0.95rem;
+            opacity: 0.8;
+            max-width: 600px;
+            margin: 0 auto;
+            border-top: 1px solid rgba(244, 241, 232, 0.3);
+            padding-top: 15px;
+        }
+        
+        .save-indicator {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(44, 24, 16, 0.9);
+            color: #f4f1e8;
+            padding: 10px 15px;
+            border-radius: 25px;
+            font-size: 0.85rem;
+            backdrop-filter: blur(10px);
+            border: 1px solid #8b7557;
+            z-index: 1000;
+        }
+        
+        .content {
+            padding: 30px;
+            position: relative;
+        }
+        
+        .section {
+            background: rgba(255, 255, 255, 0.7);
+            margin-bottom: 30px;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 
+                0 8px 25px rgba(44, 24, 16, 0.2),
+                inset 0 1px 0 rgba(255, 255, 255, 0.8);
+            border: 1px solid rgba(139, 117, 87, 0.3);
+        }
+        
+        .section-header {
+            background: linear-gradient(145deg, #355e3b 0%, #2c4f32 100%);
+            color: #f4f1e8;
+            padding: 20px 25px;
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.4rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+            border-bottom: 3px solid #8b7557;
+        }
+        
+        .row {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr;
+            min-height: 60px;
+            align-items: center;
+            border-bottom: 1px solid rgba(139, 117, 87, 0.2);
+            transition: background-color 0.2s ease;
+        }
+        
+        .row:hover {
+            background: rgba(139, 117, 87, 0.1);
+        }
+        
+        .row:last-child {
+            border-bottom: none;
+        }
+        
+        .cell {
+            padding: 15px 25px;
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+        }
+        
+        .cell.label {
+            font-weight: 600;
+            color: #2c1810;
+        }
+        
+        .cell.input {
+            background: rgba(139, 117, 87, 0.1);
+        }
+        
+        .cell.input input, .cell.input select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #8b7557;
+            border-radius: 8px;
+            font-size: 1rem;
+            background: rgba(255, 255, 255, 0.9);
+            color: #2c1810;
+            font-family: 'Crimson Text', serif;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .cell.input input:focus, .cell.input select:focus {
+            outline: none;
+            border-color: #355e3b;
+            box-shadow: 0 0 0 3px rgba(53, 94, 59, 0.2);
+            background: rgba(255, 255, 255, 1);
+            transform: translateY(-1px);
+        }
+        
+        .cell.calculated {
+            background: rgba(53, 94, 59, 0.1);
+            font-weight: 500;
+            color: #2c4f32;
+            font-family: 'Cormorant Garamond', serif;
+            font-style: italic;
+        }
+        
+        .cell.result {
+            background: linear-gradient(145deg, rgba(101, 67, 33, 0.2), rgba(139, 117, 87, 0.2));
+            font-weight: 700;
+            color: #654321;
+            font-size: 1.2rem;
+            border-left: 4px solid #8b7557;
+        }
+        
+        .cell.warning {
+            background: linear-gradient(145deg, rgba(139, 69, 19, 0.2), rgba(160, 82, 45, 0.2));
+            color: #8b4513;
+            font-weight: 700;
+        }
+        
+        .cell.good {
+            background: linear-gradient(145deg, rgba(53, 94, 59, 0.2), rgba(46, 79, 50, 0.2));
+            color: #355e3b;
+            font-weight: 700;
+        }
+        
+        .total-row {
+            background: linear-gradient(145deg, rgba(139, 117, 87, 0.3), rgba(101, 67, 33, 0.2));
+            border-top: 3px solid #8b7557;
+            border-bottom: 3px solid #8b7557;
+        }
+        
+        .total-row .cell {
+            font-weight: 700;
+            font-size: 1.1rem;
+        }
+        
+        .summary-section {
+            background: linear-gradient(145deg, #f5e6d3 0%, #e8dcc0 100%);
+            padding: 30px;
+            margin-top: 20px;
+        }
+        
+        .summary-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+        
+        .summary-card {
+            background: rgba(255, 255, 255, 0.8);
+            padding: 25px;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 
+                0 8px 25px rgba(44, 24, 16, 0.15),
+                inset 0 1px 0 rgba(255, 255, 255, 0.8);
+            border: 2px solid rgba(139, 117, 87, 0.3);
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        
+        .summary-card::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: linear-gradient(145deg, #8b7557, #654321);
+            border-radius: 17px;
+            z-index: -1;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .summary-card:hover::before {
+            opacity: 1;
+        }
+        
+        .summary-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 35px rgba(44, 24, 16, 0.25);
+        }
+        
+        .summary-card .value {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 2.2rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #2c1810;
+        }
+        
+        .summary-card .label {
+            font-size: 0.9rem;
+            color: #654321;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 600;
+        }
+        
+        .summary-card.positive .value {
+            color: #355e3b;
+        }
+        
+        .summary-card.negative .value {
+            color: #8b4513;
+        }
+        
+        .summary-card.neutral .value {
+            color: #654321;
+        }
+        
+        .wisdom-section {
+            background: rgba(44, 24, 16, 0.05);
+            border-left: 6px solid #8b7557;
+            border-radius: 0 12px 12px 0;
+            padding: 25px;
+            margin: 25px 0;
+        }
+        
+        .wisdom-section h3 {
+            font-family: 'Cormorant Garamond', serif;
+            color: #2c1810;
+            margin-bottom: 15px;
+            font-size: 1.4rem;
+        }
+        
+        .wisdom-item {
+            margin-bottom: 12px;
+            padding: 12px 0;
+            border-bottom: 1px solid rgba(44, 24, 16, 0.1);
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+        
+        .wisdom-item:last-child {
+            border-bottom: none;
+        }
+        
+        .wisdom-item strong {
+            color: #355e3b;
+            font-weight: 600;
+        }
+        
+        .decorative-divider {
+            text-align: center;
+            margin: 30px 0;
+            font-size: 1.5rem;
+            color: #8b7557;
+            opacity: 0.6;
+        }
+        
+        .export-section {
+            text-align: center;
+            margin-top: 30px;
+            padding: 20px;
+        }
+        
+        .export-btn {
+            background: linear-gradient(145deg, #355e3b 0%, #2c4f32 100%);
+            color: #f4f1e8;
+            padding: 15px 25px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            margin: 0 10px;
+            transition: all 0.3s ease;
+            font-family: 'Crimson Text', serif;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .export-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(53, 94, 59, 0.3);
+            background: linear-gradient(145deg, #2c4f32 0%, #355e3b 100%);
+        }
+        
+        .footer-quote {
+            text-align: center;
+            font-style: italic;
+            color: #654321;
+            padding: 30px;
+            border-top: 1px solid rgba(139, 117, 87, 0.3);
+            margin-top: 30px;
+            font-size: 1.1rem;
+        }
+        
+        @media (max-width: 768px) {
+            .row {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+            
+            .cell {
+                padding: 10px 15px;
+            }
+            
+            .summary-cards {
+                grid-template-columns: 1fr;
+            }
+            
+            .header h1 {
+                font-size: 2.2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="save-indicator" id="saveIndicator">📜 Session Preserved</div>
+        
+        <div class="header">
+            <h1>Personal Finance Codex</h1>
+            <div class="subtitle">A Scholarly Approach to Wealth Accumulation</div>
+            <div class="quote">"The real measure of your wealth is how much you'd be worth if you lost all your money." — Benjamin Franklin</div>
+        </div>
+        
+        <div class="content">
+            <!-- Income Section -->
+            <div class="section">
+                <div class="section-header">💰 Income & Fiscal Analysis</div>
+                
+                <div class="row">
+                    <div class="cell label">Annual Salary</div>
+                    <div class="cell input"><input type="number" id="salary" placeholder="75000" oninput="calculate()"></div>
+                    <div class="cell calculated" id="salaryDisplay">$0</div>
+                </div>
+                
+                <div class="row">
+                    <div class="cell label">Signing Bonus (one-time)</div>
+                    <div class="cell input"><input type="number" id="signingBonus" placeholder="5000" oninput="calculate()"></div>
+                    <div class="cell calculated" id="signingBonusDisplay">$0</div>
+                </div>
+                
+                <div class="row">
+                    <div class="cell input"><input type="number" id="relocationStipend" placeholder="3000" oninput="calculate()"></div>
+                    <div class="cell calculated" id="relocationStipendDisplay">$0</div>
+                </div>
+                
+                <div class="row">
+                    <div class="cell label">State Tax Assessment</div>
+                    <div class="cell input">
+                        <select id="stateTax" onchange="calculate()">
+                            <option value="0">No State Tax (TX, FL, WA, etc.)</option>
+                            <option value="5">Low Tax Jurisdiction (~5%)</option>
+                            <option value="7" selected>Medium Tax Jurisdiction (~7%)</option>
+                            <option value="10">High Tax Jurisdiction (~10%)</option>
+                            <option value="13">Very High Tax Jurisdiction (~13%)</option>
+                        </select>
+                    </div>
+                    <div class="cell calculated" id="stateTaxDisplay">7%</div>
+                </div>
+                
+                <div class="row total-row">
+                    <div class="cell label">📊 Monthly Net Income</div>
+                    <div class="cell calculated">After all governmental assessments</div>
+                    <div class="cell result" id="monthlyTakeHome">$0</div>
+                </div>
+            </div>
+            
+            <!-- Expenses Section -->
+            <div class="section">
+                <div class="section-header">🏛️ Monthly Expenditure Analysis</div>
+                
+                <div class="row">
+                    <div class="cell label">🏠 Domicile (Rent)</div>
+                    <div class="cell input"><input type="number" id="rent" placeholder="1200" oninput="calculate()"></div>
+                    <div class="cell calculated" id="rentPercent">0%</div>
+                </div>
+                
+                <div class="row">
+                    <div class="cell label">⚡ Utilities & Communications</div>
+                    <div class="cell input"><input type="number" id="utilities" placeholder="150" oninput="calculate()"></div>
+                    <div class="cell calculated" id="utilitiesPercent">0%</div>
+                </div>
+                
+                <div class="row">
+                    <div class="cell label">🚗 Transportation & Conveyance</div>
+                    <div class="cell input"><input type="number" id="transportation" placeholder="200" oninput="calculate()"></div>
+                    <div class="cell calculated" id="transportationPercent">0%</div>
+                </div>
+                
+                <div class="row">
+                    <div class="cell label">🥘 Provisions & Groceries</div>
+                    <div class="cell input"><input type="number" id="groceries" placeholder="300" oninput="calculate()"></div>
+                    <div class="cell calculated" id="groceriesPercent">0%</div>
+                </div>
+                
+                <div class="row">
+                    <div class="cell label">🍷 Dining & Social Repasts</div>
+                    <div class="cell input"><input type="number" id="diningOut" placeholder="150" oninput="calculate()"></div>
+                    <div class="cell calculated" id="diningOutPercent">0%</div>
+                </div>
+                
+                <div class="row">
+                    <div class="cell label">🧴 Personal Care & Essentials</div>
+                    <div class="cell input"><input type="number" id="personalCare" placeholder="100" oninput="calculate()"></div>
+                    <div class="cell calculated" id="personalCarePercent">0%</div>
+                </div>
+                
+                <div class="row">
+                    <div class="cell label">📱 Digital Subscriptions</div>
+                    <div class="cell input"><input type="number" id="subscriptions" placeholder="80" oninput="calculate()"></div>
+                    <div class="cell calculated" id="subscriptionsPercent">0%</div>
+                </div>
+                
+                <div class="row">
+                    <div class="cell label">🎭 Entertainment & Culture</div>
+                    <div class="cell input"><input type="number" id="entertainment" placeholder="100" oninput="calculate()"></div>
+                    <div class="cell calculated" id="entertainmentPercent">0%</div>
+                </div>
+                
+                <div class="row">
+                    <div class="cell label">📚 Miscellaneous & Contingencies</div>
+                    <div class="cell input"><input type="number" id="miscellaneous" placeholder="100" oninput="calculate()"></div>
+                    <div class="cell calculated" id="miscellaneousPercent">0%</div>
+                </div>
+                
+                <div class="row total-row">
+                    <div class="cell label">📊 Total Monthly Expenditures</div>
+                    <div class="cell calculated" id="totalExpenses">$0</div>
+                    <div class="cell result" id="totalExpensesPercent">0%</div>
+                </div>
+            </div>
+            
+            <!-- Savings Section -->
+            <div class="section">
+                <div class="section-header">💎 Wealth Accumulation Registry</div>
+                
+                <div class="row">
+                    <div class="cell label">🏛️ Retirement Fund Contribution (%)</div>
+                    <div class="cell input"><input type="number" id="retirement401k" placeholder="6" min="0" max="100" oninput="calculate()">%</div>
+                    <div class="cell calculated" id="monthly401k">$0/month</div>
+                </div>
+                
+                <div class="row">
+                    <div class="cell label">💰 Additional Monthly Reserves</div>
+                    <div class="cell input"><input type="number" id="additionalSavings" placeholder="500" oninput="calculate()"></div>
+                    <div class="cell calculated" id="additionalSavingsPercent">0%</div>
+                </div>
+                
+                <div class="row total-row">
+                    <div class="cell label">📊 Total Monthly Accumulation</div>
+                    <div class="cell calculated" id="totalSavings">$0</div>
+                    <div class="cell result" id="savingsRate">0%</div>
+                </div>
+            </div>
+            
+            <!-- Bottom Line -->
+            <div class="section">
+                <div class="section-header">⚖️ Financial Equilibrium</div>
+                
+                <div class="row total-row">
+                    <div class="cell label">💰 Monthly Financial Surplus</div>
+                    <div class="cell calculated">Net Income - Expenditures - Savings</div>
+                    <div class="cell" id="leftoverMoney">$0</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="summary-section">
+            <div class="decorative-divider">❦ ❦ ❦</div>
+            
+            <div class="summary-cards">
+                <div class="summary-card neutral">
+                    <div class="value" id="summaryTakeHome">$0</div>
+                    <div class="label">Monthly Net Income</div>
+                </div>
+                <div class="summary-card neutral">
+                    <div class="value" id="summarySavingsRate">0%</div>
+                    <div class="label">Accumulation Rate</div>
+                </div>
+                <div class="summary-card neutral">
+                    <div class="value" id="summaryFirstYear">$0</div>
+                    <div class="label">First Year Reserves</div>
+                </div>
+                <div class="summary-card neutral">
+                    <div class="value" id="summaryTenYear">$0</div>
+                    <div class="label">Decennial Projection</div>
+                </div>
+            </div>
+            
+            <div class="wisdom-section">
+                <h3>📜 Financial Maxims for the Scholarly Mind</h3>
+                <div class="wisdom-item">
+                    <strong>🏛️ The Foundation Principle:</strong> Secure thy dwelling at no more than 25% of thy income, for a stable foundation supports all wealth.
+                </div>
+                <div class="wisdom-item">
+                    <strong>🎯 The Matching Doctrine:</strong> Should thy employer match thy retirement contributions, contribute at minimum to receive the full match—'tis free coin for thy coffers.
+                </div>
+                <div class="wisdom-item">
+                    <strong>🚨 The Emergency Reserve:</strong> Build thy emergency fund with thy signing bonus—three to five thousand shall serve as thy financial fortress.
+                </div>
+                <div class="wisdom-item">
+                    <strong>🌱 The Compound Theorem:</strong> Money saved in thy youth grows exponentially—$20,000 saved annually from age 22-32 yields greater wealth at retirement than the same saved from 32-65.
+                </div>
+                <div class="wisdom-item">
+                    <strong>⚖️ The Automation Principle:</strong> Set automatic transfers upon each payment—pay thyself first, before any other creditor.
+                </div>
+                <div class="wisdom-item">
+                    <strong>📈 The Patience Doctrine:</strong> Live as a student for one more year whilst earning a professional's wage—thy future self shall thank thee greatly.
+                </div>
+            </div>
+            
+            <div class="export-section">
+                <button class="export-btn" onclick="exportToCSV()">📊 Export Ledger</button>
+                <button class="export-btn" onclick="exportToPDF()">📜 Create Parchment</button>
+            </div>
+        </div>
+        
+        <div class="footer-quote">
+            "In the grand library of life, financial wisdom is the most valuable tome to master."
+        </div>
+    </div>
+    
+    <script>
+        // Memory-based data storage
+        let budgetData = {};
+        
+        function saveData() {
+            const data = {};
+            const inputs = document.querySelectorAll('input, select');
+            inputs.forEach(input => {
+                data[input.id] = input.value;
+            });
+            budgetData = data;
+            
+            try {
+                localStorage.setItem('financeCodexData', JSON.stringify(data));
+            } catch (e) {
+                // localStorage blocked, data stays in memory
+            }
+            
+            const indicator = document.getElementById('saveIndicator');
+            indicator.textContent = '📜 Knowledge Preserved';
+            setTimeout(() => {
+                indicator.textContent = '📜 Session Preserved';
+            }, 1000);
+        }
+        
+        function loadData() {
+            let savedData = null;
+            
+            try {
+                savedData = localStorage.getItem('financeCodexData');
+            } catch (e) {
+                savedData = budgetData ? JSON.stringify(budgetData) : null;
+            }
+            
+            if (savedData && savedData !== 'null') {
+                const data = JSON.parse(savedData);
+                Object.keys(data).forEach(key => {
+                    const element = document.getElementById(key);
+                    if (element) {
+                        element.value = data[key];
+                    }
+                });
+            } else {
+                setDefaults();
+            }
+        }
+        
+        function setDefaults() {
+            document.getElementById('salary').value = '75000';
+            document.getElementById('signingBonus').value = '5000';
+            document.getElementById('relocationStipend').value = '3000';
+            document.getElementById('rent').value = '1200';
+            document.getElementById('utilities').value = '150';
+            document.getElementById('transportation').value = '200';
+            document.getElementById('groceries').value = '300';
+            document.getElementById('diningOut').value = '150';
+            document.getElementById('personalCare').value = '100';
+            document.getElementById('subscriptions').value = '80';
+            document.getElementById('entertainment').value = '100';
+            document.getElementById('miscellaneous').value = '100';
+            document.getElementById('retirement401k').value = '6';
+            document.getElementById('additionalSavings').value = '500';
+        }
+        
+        function calculate() {
+            const salary = parseFloat(document.getElementById('salary').value) || 0;
+            const signingBonus = parseFloat(document.getElementById('signingBonus').value) || 0;
+            const relocationStipend = parseFloat(document.getElementById('relocationStipend').value) || 0;
+            const stateTaxRate = parseFloat(document.getElementById('stateTax').value) || 7;
+            
+            // Tax calculations
+            const federalTaxRate = 0.22;
+            const socialSecurityRate = 0.062;
+            const medicareRate = 0.0145;
+            const totalTaxRate = federalTaxRate + (stateTaxRate / 100) + socialSecurityRate + medicareRate;
+            
+            const monthlyGross = salary / 12;
+            const monthlyTakeHome = monthlyGross * (1 - totalTaxRate);
+            
+            // Update displays
+            document.getElementById('salaryDisplay').textContent = '$' + salary.toLocaleString();
+            document.getElementById('signingBonusDisplay').textContent = '$' + signingBonus.toLocaleString();
+            document.getElementById('relocationStipendDisplay').textContent = '$' + relocationStipend.toLocaleString();
+            document.getElementById('stateTaxDisplay').textContent = stateTaxRate + '%';
+            document.getElementById('monthlyTakeHome').textContent = '$' + monthlyTakeHome.toFixed(0);
+            
+            // Expenses
+            const expenses = {
+                rent: parseFloat(document.getElementById('rent').value) || 0,
+                utilities: parseFloat(document.getElementById('utilities').value) || 0,
+                transportation: parseFloat(document.getElementById('transportation').value) || 0,
+                groceries: parseFloat(document.getElementById('groceries').value) || 0,
+                diningOut: parseFloat(document.getElementById('diningOut').value) || 0,
+                personalCare: parseFloat(document.getElementById('personalCare').value) || 0,
+                subscriptions: parseFloat(document.getElementById('subscriptions').value) || 0,
+                entertainment: parseFloat(document.getElementById('entertainment').value) || 0,
+                miscellaneous: parseFloat(document.getElementById('miscellaneous').value) || 0
+            };
+            
+            Object.keys(expenses).forEach(key => {
+                const percentage = monthlyTakeHome > 0 ? (expenses[key] / monthlyTakeHome * 100).toFixed(1) : 0;
+                const percentCell = document.getElementById(key + 'Percent');
+                percentCell.textContent = percentage + '%';
+                
+                if (key === 'rent' || key === 'utilities') {
+                    const housingPercent = ((expenses.rent + expenses.utilities) / monthlyTakeHome * 100);
+                    if (housingPercent > 30) {
+                        percentCell.className = 'cell warning';
+                    } else if (housingPercent < 25) {
+                        percentCell.className = 'cell good';
+                    } else {
+                        percentCell.className = 'cell calculated';
+                    }
+                }
+            });
+            
+            const totalExpenses = Object.values(expenses).reduce((sum, val) => sum + val, 0);
+            const totalExpensesPercent = monthlyTakeHome > 0 ? (totalExpenses / monthlyTakeHome * 100).toFixed(1) : 0;
+            
+            document.getElementById('totalExpenses').textContent = '$' + totalExpenses.toFixed(0);
+            document.getElementById('totalExpensesPercent').textContent = totalExpensesPercent + '%';
+            
+            // Savings
+            const retirement401kPercent = parseFloat(document.getElementById('retirement401k').value) || 0;
+            const monthly401k = (salary * (retirement401kPercent / 100)) / 12;
+            const additionalSavings = parseFloat(document.getElementById('additionalSavings').value) || 0;
+            const totalSavings = monthly401k + additionalSavings;
+            
+            document.getElementById('monthly401k').textContent = '$' + monthly401k.toFixed(0) + '/month';
+            document.getElementById('additionalSavingsPercent').textContent = monthlyTakeHome > 0 ? (additionalSavings / monthlyTakeHome * 100).toFixed(1) + '%' : '0%';
+            document.getElementById('totalSavings').textContent = '$' + totalSavings.toFixed(0);
+            
+            const savingsRate = monthlyTakeHome > 0 ? (totalSavings / monthlyTakeHome * 100).toFixed(1) : 0;
+            document.getElementById('savingsRate').textContent = savingsRate + '%';
+            
+            // Bottom line
+            const leftoverMoney = monthlyTakeHome - totalExpenses - additionalSavings;
+            const leftoverCell = document.getElementById('leftoverMoney');
+            leftoverCell.textContent = '$' + leftoverMoney.toFixed(0);
+            
+            if (leftoverMoney < 0) {
+                leftoverCell.className = 'cell warning';
+            } else if (leftoverMoney > 500) {
+                leftoverCell.className = 'cell good';
+            } else {
+                leftoverCell.className = 'cell calculated';
+            }
+            
+            // Summary cards
+            document.getElementById('summaryTakeHome').textContent = '$' + monthlyTakeHome.toFixed(0);
+            document.getElementById('summarySavingsRate').textContent = savingsRate + '%';
+            
+            const firstYearSavings = (totalSavings * 12) + signingBonus + relocationStipend;
+            document.getElementById('summaryFirstYear').textContent = '$' + firstYearSavings.toFixed(0);
+            
+            const tenYearProjection = firstYearSavings * 13.816;
+            document.getElementById('summaryTenYear').textContent = '$' + tenYearProjection.toFixed(0);
+            
+            // Update card colors
+            const cards = document.querySelectorAll('.summary-card');
+            cards[1].className = savingsRate >= 20 ? 'summary-card positive' : savingsRate >= 10 ? 'summary-card neutral' : 'summary-card negative';
+            cards[2].className = firstYearSavings >= 15000 ? 'summary-card positive' : 'summary-card neutral';
+            cards[3].className = 'summary-card positive';
+            
+            saveData();
+        }
+        
+        function exportToCSV() {
+            const data = [
+                ['Personal Finance Codex - Scholarly Budget Analysis'],
+                [''],
+                ['INCOME ANALYSIS'],
+                ['Annual Salary', document.getElementById('salary').value],
+                ['Signing Bonus', document.getElementById('signingBonus').value],
+                ['Relocation Stipend', document.getElementById('relocationStipend').value],
+                ['Monthly Net Income', document.getElementById('monthlyTakeHome').textContent],
+                [''],
+                ['EXPENDITURE ANALYSIS'],
+                ['Domicile (Rent)', document.getElementById('rent').value],
+                ['Utilities & Communications', document.getElementById('utilities').value],
+                ['Transportation', document.getElementById('transportation').value],
+                ['Provisions & Groceries', document.getElementById('groceries').value],
+                ['Dining & Social Repasts', document.getElementById('diningOut').value],
+                ['Personal Care & Essentials', document.getElementById('personalCare').value],
+                ['Digital Subscriptions', document.getElementById('subscriptions').value],
+                ['Entertainment & Culture', document.getElementById('entertainment').value],
+                ['Miscellaneous & Contingencies', document.getElementById('miscellaneous').value],
+                ['Total Monthly Expenditures', document.getElementById('totalExpenses').textContent],
+                [''],
+                ['WEALTH ACCUMULATION'],
+                ['Retirement Fund Contribution %', document.getElementById('retirement401k').value],
+                ['Additional Monthly Reserves', document.getElementById('additionalSavings').value],
+                ['Total Monthly Accumulation', document.getElementById('totalSavings').textContent],
+                ['Accumulation Rate', document.getElementById('savingsRate').textContent],
+                [''],
+                ['FINANCIAL EQUILIBRIUM'],
+                ['Monthly Financial Surplus', document.getElementById('leftoverMoney').textContent],
+                ['First Year Reserves', document.getElementById('summaryFirstYear').textContent],
+                ['Decennial Projection', document.getElementById('summaryTenYear').textContent]
+            ];
+            
+            const csv = data.map(row => row.join(',')).join('\n');
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'personal-finance-codex.csv';
+            a.click();
+            window.URL.revokeObjectURL(url);
+        }
+        
+        function exportToPDF() {
+            window.print();
+        }
+        
+        // Initialize
+        window.onload = function() {
+            loadData();
+            calculate();
+        };
+    </script>
+</body>
+</html>
