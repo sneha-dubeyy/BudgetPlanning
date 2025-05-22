@@ -2,15 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="Finance Codex">
-    <meta name="theme-color" content="#2c1810">
-    <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📚</text></svg>">
-    <meta name="description" content="A scholarly approach to personal finance and wealth accumulation">
-    
     <title>Personal Finance Codex</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Crimson+Text:ital,wght@0,400;0,600;1,400&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&display=swap');
@@ -123,12 +115,31 @@
             right: 20px;
             background: rgba(44, 24, 16, 0.9);
             color: #f4f1e8;
-            padding: 10px 15px;
-            border-radius: 25px;
-            font-size: 0.85rem;
+            padding: 8px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
             backdrop-filter: blur(10px);
             border: 1px solid #8b7557;
             z-index: 1000;
+            opacity: 0;
+            transform: translateY(-10px);
+            transition: all 0.3s ease;
+            pointer-events: none;
+        }
+        
+        .save-indicator.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        .save-indicator.saving {
+            background: rgba(53, 94, 59, 0.9);
+            border-color: #355e3b;
+        }
+        
+        .save-indicator.saved {
+            background: rgba(139, 117, 87, 0.9);
+            border-color: #8b7557;
         }
         
         .content {
@@ -430,7 +441,7 @@
 </head>
 <body>
     <div class="container">
-        <div class="save-indicator" id="saveIndicator">📜 Session Preserved</div>
+        <div class="save-indicator" id="saveIndicator">📜 Saving...</div>
         
         <div class="header">
             <h1>Personal Finance Codex</h1>
@@ -637,10 +648,15 @@
     </div>
     
     <script>
-        // Memory-based data storage
+        // Memory-based data storage with Google Docs-style saving
         let budgetData = {};
+        let saveTimeout;
+        let debounceTimeout;
         
         function saveData() {
+            // Clear any existing timeout
+            clearTimeout(saveTimeout);
+            
             const data = {};
             const inputs = document.querySelectorAll('input, select');
             inputs.forEach(input => {
@@ -648,18 +664,58 @@
             });
             budgetData = data;
             
+            const indicator = document.getElementById('saveIndicator');
+            
+            // Show "Saving..." immediately
+            indicator.textContent = '📜 Saving...';
+            indicator.className = 'save-indicator show saving';
+            
+            // Save to localStorage
             try {
                 localStorage.setItem('financeCodexData', JSON.stringify(data));
             } catch (e) {
                 // localStorage blocked, data stays in memory
             }
             
-            const indicator = document.getElementById('saveIndicator');
-            indicator.textContent = '📜 Knowledge Preserved';
-            setTimeout(() => {
-                indicator.textContent = '📜 Session Preserved';
-            }, 1000);
+            // After 800ms, show "Saved" briefly, then fade away
+            saveTimeout = setTimeout(() => {
+                indicator.textContent = '📜 Saved';
+                indicator.className = 'save-indicator show saved';
+                
+                // Fade away after 1.5 seconds
+                setTimeout(() => {
+                    indicator.className = 'save-indicator';
+                }, 1500);
+            }, 800);
         }
+        
+        // Debounced save function (like Google Docs)
+        function debouncedSave() {
+            clearTimeout(debounceTimeout);
+            debounceTimeout = setTimeout(() => {
+                // Auto-save after calculation (debounced)
+            debouncedSave();
+            }, 1000); // Wait 1 second after user stops typing
+        }
+        
+        // Manual save with Cmd+S / Ctrl+S
+        document.addEventListener('keydown', function(e) {
+            if ((e.metaKey || e.ctrlKey) && e.key === 's') {
+                e.preventDefault();
+                
+                clearTimeout(debounceTimeout); // Cancel any pending auto-save
+                
+                const indicator = document.getElementById('saveIndicator');
+                indicator.textContent = '📜 Manually Saved';
+                indicator.className = 'save-indicator show saved';
+                
+                saveData();
+                
+                setTimeout(() => {
+                    indicator.className = 'save-indicator';
+                }, 2000);
+            }
+        });
         
         function loadData() {
             let savedData = null;
